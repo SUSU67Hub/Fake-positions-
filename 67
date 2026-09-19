@@ -1,0 +1,34 @@
+local localPlayer = game:GetService("Players").LocalPlayer
+local lockedY = nil
+local lastPos = nil
+
+game:GetService("RunService").Heartbeat:Connect(function()
+    local character = localPlayer.Character
+    if character and character:FindFirstChild("HumanoidRootPart") and character:FindFirstChild("Humanoid") then
+        local root = character.HumanoidRootPart
+        local humanoid = character.Humanoid
+        local currentPos = root.Position
+        
+        if not lockedY then
+            lockedY = currentPos.Y - 7
+        end
+        
+        local moveDir = humanoid.MoveDirection
+        if moveDir.Magnitude > 0 then
+            local speed = humanoid.WalkSpeed
+            lastPos = root.Position + (moveDir * speed * 0.016)
+            root.CFrame = CFrame.new(lastPos.X, lockedY, lastPos.Z) * (root.CFrame - currentPos)
+        else
+            if not lastPos then
+                lastPos = currentPos
+            end
+            root.CFrame = CFrame.new(lastPos.X, lockedY, lastPos.Z) * (root.CFrame - currentPos)
+        end
+        
+        root.AssemblyLinearVelocity = Vector3.zero
+        root.AssemblyAngularVelocity = Vector3.zero
+    else
+        lockedY = nil
+        lastPos = nil
+    end
+end)
